@@ -1,5 +1,6 @@
 package me.mzorro.rpc.impl.nio.server;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -12,8 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import me.mzorro.rpc.api.Channel;
 import me.mzorro.rpc.api.ChannelReader;
 import me.mzorro.rpc.api.ChannelWriter;
+import me.mzorro.rpc.api.server.AbstractServer;
 import me.mzorro.rpc.api.server.RequestHandler;
-import me.mzorro.rpc.api.server.Server;
 import me.mzorro.rpc.impl.nio.NIOChannel;
 
 /**
@@ -21,38 +22,27 @@ import me.mzorro.rpc.impl.nio.NIOChannel;
  *
  * @author hzpengjunjian@corp.netease.com
  */
-public class NIOServer implements Server, Runnable {
+public class NIOServer extends AbstractServer {
 
     private final Map<Channel, ChannelWriter> writers = new ConcurrentHashMap<>();
 
     private final Map<Channel, ChannelReader> readers = new ConcurrentHashMap<>();
 
-    private int port;
-
-    private RequestHandler requestHandler;
-
-    private volatile boolean closed = false;
-
-    public void close() {
-        this.closed = true;
-    }
+    private ServerSocketChannel server = null;
 
     public NIOServer(int port, RequestHandler requestHandler) {
-        this.port = port;
-        this.requestHandler = requestHandler;
-        Thread thread = new Thread(this);
-        thread.setDaemon(true);
-        thread.start();
+        super(port, requestHandler);
     }
 
     @Override
     public void run() {
         try {
-            ServerSocketChannel server = ServerSocketChannel.open();
+            server = ServerSocketChannel.open();
             server.configureBlocking(false);
             Selector selector = Selector.open();
             server.bind(new InetSocketAddress(port));
             server.register(selector, SelectionKey.OP_ACCEPT);
+            setResult(true);
             while (!closed) {
                 if (selector.select() == 0) {
                     continue;
@@ -94,7 +84,17 @@ public class NIOServer implements Server, Runnable {
                 }
             }
         } catch (Throwable t) {
+            setResult(t);
             t.printStackTrace();
+        } finally {
+            close();
+        }
+    }
+
+    @Override
+    protected void doClose() throws IOException {
+        if (server != null) {
+            server.close();
         }
     }
 }

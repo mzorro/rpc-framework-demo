@@ -17,6 +17,8 @@ import me.mzorro.rpc.impl.aio.AIOChannel;
  */
 public class AIOServer extends AbstractServer {
 
+    private AsynchronousServerSocketChannel server = null;
+
     public AIOServer(int port, RequestHandler requestHandler) {
         super(port, requestHandler);
     }
@@ -24,7 +26,7 @@ public class AIOServer extends AbstractServer {
     @Override
     public void run() {
         try {
-            AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open();
+            server = AsynchronousServerSocketChannel.open();
             server.bind(new InetSocketAddress(port));
             server.accept(server, new CompletionHandler<AsynchronousSocketChannel, Object>() {
                 @Override
@@ -38,8 +40,22 @@ public class AIOServer extends AbstractServer {
                     exc.printStackTrace();
                 }
             });
+            setResult(true);
         } catch (IOException e) {
+            setResult(e);
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void close() {
+        super.close();
+    }
+
+    @Override
+    protected void doClose() throws IOException {
+        if (server != null) {
+            server.close();
         }
     }
 }

@@ -5,10 +5,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.NetworkChannel;
 import java.nio.channels.SocketChannel;
 
+import me.mzorro.rpc.api.AbstractChannel;
 import me.mzorro.rpc.api.codec.Codec;
 import me.mzorro.rpc.api.server.RequestHandler;
 import me.mzorro.rpc.codec.JavaSerializationCodec;
-import me.mzorro.rpc.api.AbstractChannel;
 
 /**
  * Created On 04/03 2018
