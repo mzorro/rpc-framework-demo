@@ -8,7 +8,7 @@ import me.mzorro.rpc.api.client.Client;
 /**
  * Created On 04/20 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public abstract class AbstractClient implements Client {
 

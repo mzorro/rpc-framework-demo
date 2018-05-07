@@ -14,7 +14,7 @@ import me.mzorro.rpc.api.AbstractChannel;
 /**
  * Created On 04/06 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public class AIOChannel extends AbstractChannel {
 

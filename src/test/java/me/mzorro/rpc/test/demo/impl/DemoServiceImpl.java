@@ -5,7 +5,7 @@ import me.mzorro.rpc.test.demo.api.DemoService;
 /**
  * Created On 05/07 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public class DemoServiceImpl implements DemoService {
 

@@ -9,7 +9,7 @@ import me.mzorro.rpc.api.server.Server;
 /**
  * Created On 05/02 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public interface Transporter {
 

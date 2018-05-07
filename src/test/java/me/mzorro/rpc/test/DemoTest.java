@@ -19,7 +19,7 @@ import me.mzorro.rpc.test.demo.impl.DemoServiceImpl;
 /**
  * Created On 05/07 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public class DemoTest {
 

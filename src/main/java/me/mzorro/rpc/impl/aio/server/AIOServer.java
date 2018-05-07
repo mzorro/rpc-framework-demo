@@ -13,7 +13,7 @@ import me.mzorro.rpc.impl.aio.AIOChannel;
 /**
  * Created On 04/03 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public class AIOServer extends AbstractServer {
 

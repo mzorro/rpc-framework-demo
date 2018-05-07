@@ -6,7 +6,7 @@ import java.util.concurrent.Future;
 /**
  * Created On 03/16 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public interface Channel extends Endpoint {
 

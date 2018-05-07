@@ -11,7 +11,7 @@ import me.mzorro.rpc.api.codec.Codec;
 /**
  * Created On 04/03 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public class JavaSerializationCodec implements Codec {
 

@@ -8,7 +8,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Created On 05/06 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public class ResponseFutureDelegate implements Future<Response> {
 

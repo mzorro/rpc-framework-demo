@@ -12,7 +12,7 @@ import me.mzorro.rpc.impl.nio.server.NIOServer;
 /**
  * Created On 05/02 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public class NIOTransporter implements Transporter {
 

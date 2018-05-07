@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * Created On 04/03 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public interface Codec {
 

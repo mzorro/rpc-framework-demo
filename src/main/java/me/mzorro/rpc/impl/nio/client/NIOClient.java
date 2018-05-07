@@ -15,7 +15,7 @@ import me.mzorro.rpc.impl.nio.NIOChannel;
 /**
  * Created On 04/04 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public class NIOClient extends AbstractClient {
 

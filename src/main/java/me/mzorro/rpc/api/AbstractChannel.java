@@ -13,7 +13,7 @@ import me.mzorro.rpc.api.server.RequestHandler;
 /**
  * Created On 04/20 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public abstract class AbstractChannel implements Channel {
 

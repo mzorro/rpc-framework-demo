@@ -20,7 +20,7 @@ import me.mzorro.rpc.impl.nio.NIOChannel;
 /**
  * Created On 03/15 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public class NIOServer extends AbstractServer {
 

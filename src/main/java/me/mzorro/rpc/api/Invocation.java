@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created On 05/07 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public class Invocation implements Serializable {
 

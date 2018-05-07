@@ -6,7 +6,7 @@ import java.net.InetSocketAddress;
 /**
  * Created On 04/20 2018
  *
- * @author hzpengjunjian@corp.netease.com
+ * @author mzorrox@gmail.com
  */
 public interface Endpoint {
 
