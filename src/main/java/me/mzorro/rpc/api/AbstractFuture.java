@@ -1,6 +1,5 @@
 package me.mzorro.rpc.api;
 
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
@@ -12,7 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author mzorrox@gmail.com
  */
-public abstract class AbstractFuture<T> implements Future<T> {
+public abstract class AbstractFuture<T> implements ResultFuture<T> {
 
     private final Lock lock = new ReentrantLock();
 
@@ -27,6 +26,26 @@ public abstract class AbstractFuture<T> implements Future<T> {
             condition.signalAll();
         } finally {
             lock.unlock();
+        }
+    }
+
+    @Override
+    public T recreate() throws Throwable {
+        T r = get();
+        if (result instanceof Throwable) {
+            throw (Throwable) result;
+        } else {
+            return r;
+        }
+    }
+
+    @Override
+    public T recreate(long timeout, TimeUnit unit) throws Throwable {
+        T r = get(timeout, unit);
+        if (result instanceof Throwable) {
+            throw (Throwable) result;
+        } else {
+            return r;
         }
     }
 

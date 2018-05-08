@@ -7,13 +7,13 @@ import org.junit.Test;
 
 import me.mzorro.rpc.api.Invocation;
 import me.mzorro.rpc.api.Response;
-import me.mzorro.rpc.api.Transporter;
-import me.mzorro.rpc.api.client.Client;
-import me.mzorro.rpc.api.server.RequestHandler;
-import me.mzorro.rpc.api.server.Server;
-import me.mzorro.rpc.impl.aio.AIOTransporter;
-import me.mzorro.rpc.impl.nio.NIOTransporter;
-import me.mzorro.rpc.impl.vertx.VertxTransporter;
+import me.mzorro.rpc.api.remote.RequestHandler;
+import me.mzorro.rpc.api.remote.Transporter;
+import me.mzorro.rpc.api.remote.client.Client;
+import me.mzorro.rpc.api.remote.server.Server;
+import me.mzorro.rpc.impl.remote.aio.AIOTransporter;
+import me.mzorro.rpc.impl.remote.nio.NIOTransporter;
+import me.mzorro.rpc.impl.remote.vertx.VertxTransporter;
 import me.mzorro.rpc.test.demo.impl.DemoServiceImpl;
 
 /**
@@ -52,14 +52,14 @@ public class DemoTest {
     private void test(Transporter transporter) throws Throwable {
         Demo demo = new Demo(transporter);
         Server server = demo.transporter.listen(port, demo);
-        System.out.println(server.get());
+        System.out.println("server started:" + server.recreate());
         Client client = demo.transporter.connect(InetAddress.getLocalHost(), port);
         Invocation invocation = new Invocation();
         invocation.setMethodName("sayHello");
         invocation.setArgTypes(new Class<?>[]{ String.class });
         invocation.setArgs(new Object[]{ "mz" });
         Response response = client.request(invocation).get();
-        System.out.println(response.recreate());
+        System.out.println("response received:" + response.recreate());
         server.close();
     }
 
