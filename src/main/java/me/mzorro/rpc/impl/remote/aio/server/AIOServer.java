@@ -17,41 +17,36 @@ import me.mzorro.rpc.impl.remote.aio.AIOChannel;
  */
 public class AIOServer extends AbstractServer {
 
-    private AsynchronousServerSocketChannel server = null;
+    private volatile AsynchronousServerSocketChannel server = null;
 
     public AIOServer(int port, RequestHandler requestHandler) {
         super(port, requestHandler);
-    }
-
-    @Override
-    public void run() {
-        try {
-            server = AsynchronousServerSocketChannel.open();
-            server.bind(new InetSocketAddress(port));
-            server.accept(server, new CompletionHandler<AsynchronousSocketChannel, Object>() {
-                @Override
-                public void completed(AsynchronousSocketChannel socket, Object attachment) {
-                    if (!closed && server.isOpen()) {
-                        new AIOChannel(socket, requestHandler).read();
-                        server.accept(attachment, this);
-                    }
-                }
-
-                @Override
-                public void failed(Throwable exc, Object attachment) {
-                    exc.printStackTrace();
-                }
-            });
-            setResult(true);
-        } catch (IOException e) {
-            setResult(e);
-            e.printStackTrace();
-        }
+        open();
     }
 
     @Override
     public void close() {
         super.close();
+    }
+
+    @Override
+    protected void doOpen() throws IOException {
+        server = AsynchronousServerSocketChannel.open();
+        server.bind(new InetSocketAddress(port));
+        server.accept(server, new CompletionHandler<AsynchronousSocketChannel, AsynchronousServerSocketChannel>() {
+            @Override
+            public void completed(AsynchronousSocketChannel socket, AsynchronousServerSocketChannel server) {
+                if (!isClosed() && server.isOpen()) {
+                    new AIOChannel(socket, requestHandler).read();
+                    server.accept(server, this);
+                }
+            }
+
+            @Override
+            public void failed(Throwable exc, AsynchronousServerSocketChannel server) {
+                exc.printStackTrace();
+            }
+        });
     }
 
     @Override

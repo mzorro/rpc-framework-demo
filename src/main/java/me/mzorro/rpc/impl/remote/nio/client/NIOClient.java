@@ -7,7 +7,6 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.Future;
 
 import me.mzorro.rpc.api.Response;
-import me.mzorro.rpc.api.ResponseFutureDelegate;
 import me.mzorro.rpc.api.ResultFuture;
 import me.mzorro.rpc.api.remote.Channel;
 import me.mzorro.rpc.api.remote.client.AbstractClient;
@@ -46,16 +45,12 @@ public class NIOClient extends AbstractClient {
         } catch (IOException e) {
             throw new RuntimeException("send message error", e);
         }
-        return new ResponseFutureDelegate(read());
+        return read();
     }
 
     @Override
-    public void disconnect() {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void disconnect() throws IOException {
+        socket.close();
     }
 
     @Override
@@ -64,7 +59,7 @@ public class NIOClient extends AbstractClient {
     }
 
     @Override
-    public ResultFuture<Object> read() {
+    public ResultFuture<Response> read() {
         return channel.read();
     }
 }

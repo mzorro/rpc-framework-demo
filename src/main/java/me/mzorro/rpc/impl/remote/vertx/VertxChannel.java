@@ -62,6 +62,13 @@ public class VertxChannel extends AbstractChannel {
         return new Writer(body);
     }
 
+    @Override
+    protected void doClose() {
+        if (socket != null) {
+            socket.close();
+        }
+    }
+
     private class Reader extends AbstractReader implements Handler<Buffer> {
 
         protected final ByteBuffer headerBuffer = ByteBuffer.allocate(4);
@@ -94,13 +101,11 @@ public class VertxChannel extends AbstractChannel {
                     if (bodyBuffer.hasRemaining()) {
                         return;
                     }
-                    try {
-                        Object message = codec.decode(bodyBuffer.array());
-                        setResult(message);
-                    } catch (Exception e) {
-                        setResult(e);
-                    }
+                    Object message = codec.decode(bodyBuffer.array());
+                    success(message);
                 }
+            } catch (Throwable t) {
+                failed(t);
             } finally {
                 logRead(readBytes);
             }
@@ -127,10 +132,10 @@ public class VertxChannel extends AbstractChannel {
             int writeBytes = byteBuf.readableBytes();
             ((NetSocketInternal) socket).writeMessage(byteBuf, event -> {
                 if (event.succeeded()) {
-                    setResult(event.succeeded());
+                    complete();
                     logWrite(writeBytes);
                 } else {
-                    setResult(event.cause());
+                    failed(event.cause());
                 }
             });
             return false;

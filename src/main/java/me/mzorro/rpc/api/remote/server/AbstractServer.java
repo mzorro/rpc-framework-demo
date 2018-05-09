@@ -1,7 +1,5 @@
 package me.mzorro.rpc.api.remote.server;
 
-import java.io.IOException;
-
 import me.mzorro.rpc.api.AbstractFuture;
 import me.mzorro.rpc.api.remote.RequestHandler;
 
@@ -10,30 +8,38 @@ import me.mzorro.rpc.api.remote.RequestHandler;
  *
  * @author mzorrox@gmail.com
  */
-public abstract class AbstractServer extends AbstractFuture<Object> implements Server, Runnable {
+public abstract class AbstractServer extends AbstractFuture<Server.State> implements Server {
 
     protected int port;
 
     protected RequestHandler requestHandler;
 
-    protected volatile boolean closed = false;
-
-    public void close() {
-        this.closed = true;
+    protected void open() {
         try {
-            doClose();
-        } catch (IOException e) {
-            e.printStackTrace();
+            doOpen();
+            setResult(State.ESTABLISHED);
+        } catch (Throwable cause) {
+            setResult(State.failed(cause));
+            throw new RuntimeException("error open server on port:" + port, cause);
         }
     }
 
-    protected abstract void doClose() throws IOException;
+    public void close() {
+        try {
+            doClose();
+            setResult(State.CLOSED);
+        } catch (Throwable cause) {
+            setResult(State.failed(cause));
+            throw new RuntimeException("error close server on port:" + port, cause);
+        }
+    }
+
+    protected abstract void doOpen() throws Throwable;
+
+    protected abstract void doClose() throws Throwable;
 
     public AbstractServer(int port, RequestHandler requestHandler) {
         this.port = port;
         this.requestHandler = requestHandler;
-        Thread thread = new Thread(this);
-        thread.setDaemon(true);
-        thread.start();
     }
 }

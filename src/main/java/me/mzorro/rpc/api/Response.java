@@ -5,33 +5,35 @@ package me.mzorro.rpc.api;
  *
  * @author mzorrox@gmail.com
  */
-public class Response {
+public class Response implements Cause {
 
-    private Object response;
+    private final Object message;
 
-    private Throwable throwable;
+    private final Throwable cause;
 
-    public Object getResponse() {
-        return response;
+    public Response(Object message, Throwable cause) {
+        this.message = message;
+        this.cause = cause;
     }
 
-    public void setResponse(Object response) {
-        this.response = response;
+    public Object getMessage() {
+        return message;
     }
 
-    public Throwable getThrowable() {
-        return throwable;
+    public Throwable getCause() {
+        return cause;
     }
 
-    public void setThrowable(Throwable throwable) {
-        this.throwable = throwable;
+    public Object recreateAndGetMessage() throws Throwable {
+        recreate();
+        return message;
     }
 
-    public Object recreate() throws Throwable {
-        if (throwable != null) {
-            throw throwable;
-        } else {
-            return response;
-        }
+    public static Response success(Object message) {
+        return new Response(message, null);
+    }
+
+    public static Response failed(Throwable cause) {
+        return new Response(null, cause);
     }
 }

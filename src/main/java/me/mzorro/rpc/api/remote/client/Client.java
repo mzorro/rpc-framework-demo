@@ -1,5 +1,6 @@
 package me.mzorro.rpc.api.remote.client;
 
+import java.io.IOException;
 import java.util.concurrent.Future;
 
 import me.mzorro.rpc.api.remote.Channel;
@@ -14,5 +15,5 @@ public interface Client extends Channel {
 
     Future<Response> request(Object request);
 
-    void disconnect();
+    void disconnect() throws IOException;
 }

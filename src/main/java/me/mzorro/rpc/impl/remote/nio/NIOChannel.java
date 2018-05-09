@@ -5,8 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.NetworkChannel;
 import java.nio.channels.SocketChannel;
 
-import me.mzorro.rpc.api.remote.AbstractChannel;
 import me.mzorro.rpc.api.codec.Codec;
+import me.mzorro.rpc.api.remote.AbstractChannel;
 import me.mzorro.rpc.api.remote.RequestHandler;
 import me.mzorro.rpc.impl.codec.JavaSerializationCodec;
 
@@ -70,10 +70,10 @@ public class NIOChannel extends AbstractChannel {
                     return PARTIALLY_READ;//part read
                 }
                 Object message = codec.decode(bodyBuffer.array());
-                setResult(message);
+                success(message);
                 return message;
-            } catch (Exception e) {
-                setResult(e);
+            } catch (Throwable t) {
+                failed(t);
                 return null;
             } finally {
                 logRead(readBytes);
@@ -109,15 +109,22 @@ public class NIOChannel extends AbstractChannel {
                         return false;
                     }
                 }
-                setResult(true);
+                complete();
                 return true;
-            } catch (IOException e) {
-                setResult(false);
-                e.printStackTrace();
-                throw new RuntimeException(e);
+            } catch (Throwable cause) {
+                failed(cause);
+                cause.printStackTrace();
+                throw new RuntimeException(cause);
             } finally {
                 logWrite(writeBytes);
             }
+        }
+    }
+
+    @Override
+    protected void doClose() throws IOException {
+        if (socket != null && socket.isOpen()) {
+            socket.close();
         }
     }
 }

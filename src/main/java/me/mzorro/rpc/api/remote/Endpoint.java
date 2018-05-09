@@ -1,5 +1,6 @@
 package me.mzorro.rpc.api.remote;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
@@ -8,12 +9,13 @@ import java.net.InetSocketAddress;
  *
  * @author mzorrox@gmail.com
  */
-public interface Endpoint {
+public interface Endpoint extends Closeable {
 
     InetSocketAddress getLocalAddress();
 
     /**
      * 发送消息到对端
+     *
      * @param message 消息对象
      * @param sent    是否等待发送完成后返回
      */

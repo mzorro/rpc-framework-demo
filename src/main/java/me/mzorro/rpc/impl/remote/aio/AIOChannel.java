@@ -7,9 +7,9 @@ import java.nio.channels.CompletionHandler;
 import java.nio.channels.NetworkChannel;
 
 import me.mzorro.rpc.api.codec.Codec;
+import me.mzorro.rpc.api.remote.AbstractChannel;
 import me.mzorro.rpc.api.remote.RequestHandler;
 import me.mzorro.rpc.impl.codec.JavaSerializationCodec;
-import me.mzorro.rpc.api.remote.AbstractChannel;
 
 /**
  * Created On 04/06 2018
@@ -65,34 +65,35 @@ public class AIOChannel extends AbstractChannel {
             socket.read(headerBuffer, this, new CompletionHandler<Integer, Object>() {
                 @Override
                 public void completed(Integer result, Object attachment) {
-                    logRead(result);
-                    if (bodyLength == -1) {
-                        if (headerBuffer.hasRemaining()) {
-                            socket.read(headerBuffer, attachment, this);
-                        } else {
-                            headerBuffer.flip();
-                            bodyLength = headerBuffer.getInt();
-                            if (bodyLength <= 0) {
-                                throw new IllegalStateException("wrong data read");
+                    try {
+                        if (bodyLength == -1) {
+                            if (headerBuffer.hasRemaining()) {
+                                socket.read(headerBuffer, attachment, this);
+                            } else {
+                                headerBuffer.flip();
+                                bodyLength = headerBuffer.getInt();
+                                if (bodyLength <= 0) {
+                                    throw new IllegalStateException("wrong data read");
+                                }
+                                bodyBuffer = ByteBuffer.allocate(bodyLength);
+                                socket.read(bodyBuffer, attachment, this);
                             }
-                            bodyBuffer = ByteBuffer.allocate(bodyLength);
+                        } else if (bodyBuffer.hasRemaining()) {
                             socket.read(bodyBuffer, attachment, this);
-                        }
-                    } else if (bodyBuffer.hasRemaining()) {
-                        socket.read(bodyBuffer, attachment, this);
-                    } else {
-                        try {
+                        } else {
                             Object message = codec.decode(bodyBuffer.array());
-                            setResult(message);
-                        } catch (Exception e) {
-                            setResult(e);
+                            success(message);
                         }
+                    } catch (Throwable cause) {
+                        Reader.this.failed(cause);
+                    } finally {
+                        logRead(result);
                     }
                 }
 
                 @Override
                 public void failed(Throwable exc, Object attachment) {
-                    setResult(exc);
+                    Reader.this.failed(exc);
                 }
             });
             return null;
@@ -122,17 +123,24 @@ public class AIOChannel extends AbstractChannel {
                     } else if (bodyBuffer.hasRemaining()) {
                         socket.write(bodyBuffer, attachment, this);
                     } else {
-                        setResult(true);
+                        complete();
                     }
                 }
 
                 @Override
                 public void failed(Throwable exc, Writer attachment) {
                     exc.printStackTrace();
-                    setResult(false);
+                    Writer.this.failed(exc);
                 }
             });
             return false;
+        }
+    }
+
+    @Override
+    protected void doClose() throws IOException {
+        if (socket != null && socket.isOpen()) {
+            socket.close();
         }
     }
 }

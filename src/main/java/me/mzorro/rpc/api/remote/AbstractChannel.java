@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.mzorro.rpc.api.AbstractFuture;
+import me.mzorro.rpc.api.Response;
 import me.mzorro.rpc.api.ResultFuture;
 
 /**
@@ -63,7 +64,7 @@ public abstract class AbstractChannel implements Channel {
     }
 
     @Override
-    public ResultFuture<Object> read() {
+    public ResultFuture<Response> read() {
         AbstractReader reader = newReader();
         reader.read();
         return reader;
@@ -104,15 +105,33 @@ public abstract class AbstractChannel implements Channel {
 
     public abstract AbstractWriter newWriter(Object message) throws IOException;
 
-    protected abstract class AbstractReader extends AbstractFuture<Object> implements ChannelReader {
+    protected abstract class AbstractReader extends AbstractFuture<Response> implements ChannelReader {
 
-        @Override
-        protected void setResult(Object result) {
-            super.setResult(result);
-            received(result);
+        protected void success(Object message) {
+            setResult(Response.success(message));
+            received(message);
+        }
+
+        protected void failed(Throwable cause) {
+            setResult(Response.failed(cause));
         }
     }
 
-    protected abstract class AbstractWriter extends AbstractFuture<Object> implements ChannelWriter {
+    protected abstract class AbstractWriter extends AbstractFuture<ChannelWriter.State> implements ChannelWriter {
+
+        protected void complete() {
+            setResult(State.COMPLETED);
+        }
+
+        protected void failed(Throwable cause) {
+            setResult(State.failed(cause));
+        }
     }
+
+    @Override
+    public void close() throws IOException {
+        doClose();
+    }
+
+    protected abstract void doClose() throws IOException;
 }

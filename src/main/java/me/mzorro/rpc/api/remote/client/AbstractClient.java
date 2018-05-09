@@ -1,5 +1,6 @@
 package me.mzorro.rpc.api.remote.client;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import me.mzorro.rpc.api.remote.Channel;
@@ -21,5 +22,10 @@ public abstract class AbstractClient implements Client {
     @Override
     public InetSocketAddress getRemoteAddress() {
         return getChannel().getRemoteAddress();
+    }
+
+    @Override
+    public void close() throws IOException {
+        disconnect();
     }
 }

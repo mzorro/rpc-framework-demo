@@ -2,6 +2,7 @@ package me.mzorro.rpc.api.remote;
 
 import java.net.InetSocketAddress;
 
+import me.mzorro.rpc.api.Response;
 import me.mzorro.rpc.api.ResultFuture;
 
 /**
@@ -13,5 +14,5 @@ public interface Channel extends Endpoint {
 
     InetSocketAddress getRemoteAddress();
 
-    ResultFuture<Object> read();
+    ResultFuture<Response> read();
 }

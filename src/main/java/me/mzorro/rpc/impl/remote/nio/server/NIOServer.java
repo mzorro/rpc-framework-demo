@@ -13,8 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import me.mzorro.rpc.api.remote.Channel;
 import me.mzorro.rpc.api.remote.ChannelReader;
 import me.mzorro.rpc.api.remote.ChannelWriter;
-import me.mzorro.rpc.api.remote.server.AbstractServer;
 import me.mzorro.rpc.api.remote.RequestHandler;
+import me.mzorro.rpc.api.remote.server.AbstractServer;
 import me.mzorro.rpc.impl.remote.nio.NIOChannel;
 
 /**
@@ -22,41 +22,57 @@ import me.mzorro.rpc.impl.remote.nio.NIOChannel;
  *
  * @author mzorrox@gmail.com
  */
-public class NIOServer extends AbstractServer {
+public class NIOServer extends AbstractServer implements Runnable {
 
     private final Map<Channel, ChannelWriter> writers = new ConcurrentHashMap<>();
 
     private final Map<Channel, ChannelReader> readers = new ConcurrentHashMap<>();
 
-    private ServerSocketChannel server = null;
+    private volatile ServerSocketChannel socket = null;
+
+    private volatile Selector selector = null;
 
     public NIOServer(int port, RequestHandler requestHandler) {
         super(port, requestHandler);
+        open();
+    }
+
+    @Override
+    protected void doOpen() throws IOException {
+        socket = ServerSocketChannel.open();
+        socket.configureBlocking(false);
+        selector = Selector.open();
+        socket.bind(new InetSocketAddress(port));
+        socket.register(selector, SelectionKey.OP_ACCEPT);
+        Thread thread = new Thread(this);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    @Override
+    protected void doClose() throws IOException {
+        if (socket != null) {
+            socket.close();
+        }
     }
 
     @Override
     public void run() {
         try {
-            server = ServerSocketChannel.open();
-            server.configureBlocking(false);
-            Selector selector = Selector.open();
-            server.bind(new InetSocketAddress(port));
-            server.register(selector, SelectionKey.OP_ACCEPT);
-            setResult(true);
-            while (!closed && server.isOpen()) {
+            while (!isClosed() && socket.isOpen()) {
                 if (selector.select() == 0) {
                     continue;
                 }
                 Iterator<SelectionKey> it = selector.selectedKeys().iterator();
-                while (!closed && server.isOpen() && it.hasNext()) {
+                while (!isClosed() && socket.isOpen() && it.hasNext()) {
                     SelectionKey key = it.next();
                     try {
                         if (key.isAcceptable()) {
-                            SocketChannel socket = server.accept();
-                            socket.configureBlocking(false);
-                            NIOChannel channel = new NIOChannel(socket, requestHandler);
+                            SocketChannel clientSocket = socket.accept();
+                            clientSocket.configureBlocking(false);
+                            NIOChannel channel = new NIOChannel(clientSocket, requestHandler);
                             readers.put(channel, channel.newReader());
-                            socket.register(selector, SelectionKey.OP_READ, channel);
+                            clientSocket.register(selector, SelectionKey.OP_READ, channel);
                         } else if (key.isReadable()) {
                             NIOChannel channel = (NIOChannel) key.attachment();
                             ChannelReader reader = readers.get(channel);
@@ -84,17 +100,16 @@ public class NIOServer extends AbstractServer {
                 }
             }
         } catch (Throwable t) {
-            setResult(t);
             t.printStackTrace();
         } finally {
             close();
         }
     }
 
-    @Override
-    protected void doClose() throws IOException {
-        if (server != null) {
-            server.close();
+    private class Accepter implements Runnable {
+
+        @Override
+        public void run() {
         }
     }
 }

@@ -23,30 +23,17 @@ public abstract class AbstractFuture<T> implements ResultFuture<T> {
         try {
             lock.lock();
             this.result = result;
-            condition.signalAll();
+            if (isDone()) {
+                condition.signalAll();
+            }
         } finally {
             lock.unlock();
         }
     }
 
     @Override
-    public T recreate() throws Throwable {
-        T r = get();
-        if (result instanceof Throwable) {
-            throw (Throwable) result;
-        } else {
-            return r;
-        }
-    }
-
-    @Override
-    public T recreate(long timeout, TimeUnit unit) throws Throwable {
-        T r = get(timeout, unit);
-        if (result instanceof Throwable) {
-            throw (Throwable) result;
-        } else {
-            return r;
-        }
+    public T getNow() {
+        return result;
     }
 
     @Override

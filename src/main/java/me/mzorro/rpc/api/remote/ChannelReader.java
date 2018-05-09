@@ -1,5 +1,6 @@
 package me.mzorro.rpc.api.remote;
 
+import me.mzorro.rpc.api.Response;
 import me.mzorro.rpc.api.ResultFuture;
 
 /**
@@ -7,7 +8,7 @@ import me.mzorro.rpc.api.ResultFuture;
  *
  * @author mzorrox@gmail.com
  */
-public interface ChannelReader extends ResultFuture<Object> {
+public interface ChannelReader extends ResultFuture<Response> {
 
     Object PARTIALLY_READ = new Object();
 
