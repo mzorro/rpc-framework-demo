@@ -1,8 +1,6 @@
 package me.mzorro.rpc.api.remote;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.channels.NetworkChannel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,28 +22,6 @@ public abstract class AbstractChannel implements Channel {
 
     protected AbstractChannel(RequestHandler requestHandler) {
         this.requestHandler = requestHandler;
-    }
-
-    protected abstract NetworkChannel getNetworkChannel();
-
-    @Override
-    public InetSocketAddress getLocalAddress() {
-        try {
-            return (InetSocketAddress) getNetworkChannel().getLocalAddress();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public InetSocketAddress getRemoteAddress() {
-        try {
-            return (InetSocketAddress) getNetworkChannel().getLocalAddress();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
     }
 
     public void logRead(int bytes) {

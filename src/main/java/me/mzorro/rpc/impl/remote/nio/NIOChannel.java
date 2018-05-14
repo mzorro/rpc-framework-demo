@@ -1,14 +1,15 @@
 package me.mzorro.rpc.impl.remote.nio;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.NetworkChannel;
 import java.nio.channels.SocketChannel;
 
 import me.mzorro.rpc.api.codec.Codec;
 import me.mzorro.rpc.api.remote.AbstractChannel;
 import me.mzorro.rpc.api.remote.RequestHandler;
 import me.mzorro.rpc.impl.codec.JavaSerializationCodec;
+import me.mzorro.rpc.util.NetworkUtils;
 
 /**
  * Created On 04/03 2018
@@ -26,11 +27,6 @@ public class NIOChannel extends AbstractChannel {
         this.socket = socket;
     }
 
-    @Override
-    protected NetworkChannel getNetworkChannel() {
-        return socket;
-    }
-
     public Reader newReader() {
         return new Reader();
     }
@@ -38,6 +34,16 @@ public class NIOChannel extends AbstractChannel {
     public Writer newWriter(Object message) throws IOException {
         byte[] body = codec.encode(message);
         return new Writer(body);
+    }
+
+    @Override
+    public InetSocketAddress getRemoteAddress() {
+        return NetworkUtils.getRemoteAddress(socket);
+    }
+
+    @Override
+    public InetSocketAddress getLocalAddress() {
+        return NetworkUtils.getLocalAddress(socket);
     }
 
     private class Reader extends AbstractReader {
@@ -113,7 +119,6 @@ public class NIOChannel extends AbstractChannel {
                 return true;
             } catch (Throwable cause) {
                 failed(cause);
-                cause.printStackTrace();
                 throw new RuntimeException(cause);
             } finally {
                 logWrite(writeBytes);

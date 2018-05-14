@@ -3,7 +3,6 @@ package me.mzorro.rpc.impl.remote.vertx;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.NetworkChannel;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.Handler;
@@ -34,11 +33,6 @@ public class VertxChannel extends AbstractChannel {
 
     private InetSocketAddress unresolved(SocketAddress socketAddress) {
         return InetSocketAddress.createUnresolved(socketAddress.host(), socketAddress.port());
-    }
-
-    @Override
-    protected NetworkChannel getNetworkChannel() {
-        throw new UnsupportedOperationException();
     }
 
     @Override
